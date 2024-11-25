@@ -1,16 +1,21 @@
+## About This Project
+
+This repository includes configurations actively used in production to manage the infrastructure for **Mimir**, the service powering [Mimir GraphQL](https://mimir.nine-chronicles.dev/odin/graphql/). These configurations are designed to meet the specific needs of this service and are continuously maintained.
+
 ## Prerequisites
 
-- Terraform installed on your local machine.
-- Access to our 1Password vault that contains the necessary secrets.
-- The `op` command-line tool installed for 1Password secret injection.
+- **Terraform**: Installed on your local machine.
+- **1Password Access**: Access to our 1Password vault containing the necessary secrets.
+- **`op` Command-Line Tool**: Installed for injecting secrets from 1Password into your Terraform configurations.
+
 
 ## Setup Instructions
 
 ### 1. Prepare Your Terraform Configuration
 
-Ensure your Terraform configuration files are set up correctly. For managing secrets, we use a template file named `terraform.private.auto.tfvars.tpl`, which contains placeholders for secrets that will be injected from 1Password.
+Make sure your Terraform configuration files are correctly set up. We use a template file named `terraform.private.auto.tfvars.tpl` to manage secrets. This file contains placeholders for secrets that will be injected from 1Password.
 
-Example of `terraform.private.auto.tfvars.tpl` content:
+**Example `terraform.private.auto.tfvars.tpl` content**:
 
 ```hcl
 ...
@@ -20,25 +25,26 @@ existing_subnet_ids_public = "op://DX/DX Ecs Cluster tfvars/add more/existing_su
 
 ### 2. Inject Secrets with 1Password
 
-Before running any Terraform commands, you need to inject secrets into your configuration. This is done using the `op` command-line tool and the provided script.
-The script replaces placeholders in `terraform.private.auto.tfvars.tpl` with actual secrets from 1Password and outputs the result to `terraform.private.auto.tfvars`.
+Before running any Terraform commands, inject secrets into your configuration using the `op` command-line tool. This replaces placeholders in `terraform.private.auto.tfvars.tpl` with actual secrets from 1Password and outputs the result to `terraform.private.auto.tfvars`.
 
-Run the following command in your terminal:
+**Command**:
 
 ```bash
 op inject -i terraform.private.auto.tfvars.tpl -o terraform.private.auto.tfvars
 ```
 
-This command reads the template file `terraform.private.auto.tfvars.tpl`, injects secrets from 1Password, and writes the output to `terraform.private.auto.tfvars`.
-
 ### 3. Proceed with Terraform Commands
 
-After injecting the secrets, you can proceed with Terraform commands. For example, to plan your infrastructure changes, you can run:
+Once secrets are injected, you can manage your infrastructure with Terraform. 
+
+#### Important Note for `terraform apply`
+When running `terraform apply`, **always use the `-parallelism=1` option** to avoid concurrency issues. For example:
 
 ```bash
-terraform plan
+terraform apply -parallelism=1
 ```
 
+#### Combining Commands
 For convenience, you can combine the secrets injection and Terraform planning into one command:
 
 ```bash
